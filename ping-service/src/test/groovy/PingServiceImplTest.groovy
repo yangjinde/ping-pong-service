@@ -1,15 +1,12 @@
 import com.example.pingservice.PingApplication
 import com.example.pingservice.service.IPingService
-import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.junit4.SpringRunner
 import spock.lang.Specification
 
-@RunWith(SpringRunner.class)
 // 设置spring.profiles.active=UnitTest，不启动定时任务防止干扰
-@SpringBootTest(classes = PingApplication.class, properties = "spring.profiles.active=UnitTest")
+@SpringBootTest(classes = PingApplication.class, useMainMethod = SpringBootTest.UseMainMethod.ALWAYS, properties = "spring.profiles.active=UnitTest")
 class PingServiceImplTest extends Specification {
 
     @Autowired
@@ -48,6 +45,6 @@ class PingServiceImplTest extends Specification {
         def res2StatusCode = pingService.ping().block().statusCode
         def res3StatusCode = pingService.ping().block().statusCode
         then:
-        res1 == "World"  && res2StatusCode == HttpStatus.TOO_MANY_REQUESTS && res3StatusCode == HttpStatus.TOO_MANY_REQUESTS
+        res1 == "World" && res2StatusCode == HttpStatus.TOO_MANY_REQUESTS && res3StatusCode == HttpStatus.TOO_MANY_REQUESTS
     }
 }
