@@ -1,17 +1,19 @@
 package com.example.pongservice
 
 import com.example.pongservice.service.IPongService
-import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTestContextBootstrapper
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.BootstrapWith
 import reactor.core.publisher.Mono
 import spock.lang.Specification
 
-@RunWith(SpringRunner.class)
 // 设置spring.profiles.active=UnitTest，不启动定时任务防止干扰
-@SpringBootTest(classes = PongApplication.class, properties = "spring.profiles.active=UnitTest")
+@BootstrapWith(SpringBootTestContextBootstrapper)
+@AutoConfigureWebTestClient
+@SpringBootTest(classes = PongApplication.class, useMainMethod = SpringBootTest.UseMainMethod.ALWAYS, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "spring.profiles.active=UnitTest")
 class PongServiceImplSpec extends Specification {
 
     @Autowired
