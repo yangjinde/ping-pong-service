@@ -10,7 +10,7 @@ import spock.lang.Specification
  *
  * @date 2024/8/9
  */
-class PongRateLimiterSpec extends Specification {
+class PongRateLimiterTest extends Specification {
 
     /**
      * 测试1秒内请求1次，正常返回true

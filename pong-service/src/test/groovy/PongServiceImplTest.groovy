@@ -14,7 +14,7 @@ import spock.lang.Specification
 @BootstrapWith(SpringBootTestContextBootstrapper)
 @AutoConfigureWebTestClient
 @SpringBootTest(classes = PongApplication.class, useMainMethod = SpringBootTest.UseMainMethod.ALWAYS, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "spring.profiles.active=UnitTest")
-class PongServiceImplSpec extends Specification {
+class PongServiceImplTest extends Specification {
 
     @Autowired
     private IPongService pongService;
