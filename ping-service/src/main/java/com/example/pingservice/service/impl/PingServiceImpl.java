@@ -23,7 +23,7 @@ import java.io.IOException;
 @Service
 public class PingServiceImpl implements IPingService {
 
-    //@Value("${pong.service.url}")
+    @Value("${pong.service.url}")
     private final String pongServiceUrl;
 
     private final String SAY_CONTENT = "Hello";
@@ -34,7 +34,7 @@ public class PingServiceImpl implements IPingService {
     public PingServiceImpl(@Value("${pong.service.url}") String pongServiceUrl, WebClient.Builder webClientBuilder,
                            @Value("${ping.service.lockfile}")String lockFilePath) {
         this.pongServiceUrl = pongServiceUrl;
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8080").build();
+        this.webClient = webClientBuilder.build();
         this.lockFilePath = lockFilePath;
     }
 

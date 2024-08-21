@@ -36,8 +36,16 @@ public class PingRateLimiter {
     private static final int MAX_REQ_NUM = 2;
 
     static {
-        //判断锁文件目录不存在则创建
-        Path path = Paths.get(LOCK_FILE_PATH);
+        checkLockFilePath(LOCK_FILE_PATH);
+    }
+
+    /**
+     * 校验文件锁目录是否存在，不存在则创建
+     *
+     * @param lockFilePath 文件锁路径
+     */
+    private static void checkLockFilePath(String lockFilePath) {
+        Path path = Paths.get(lockFilePath);
         if (!Files.exists(path)) {
             Path parent = path.getParent();
             try {
@@ -77,6 +85,7 @@ public class PingRateLimiter {
      */
     public static boolean checkRateLimit(String lockFilePath) {
         lockFilePath = StringUtils.hasText(lockFilePath) ? lockFilePath : LOCK_FILE_PATH;
+        checkLockFilePath(lockFilePath);
         try (RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
             // 如果无法获取文件锁，说明已有其它实例在操作，返回false
             if (lock == null) {

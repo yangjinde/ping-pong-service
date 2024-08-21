@@ -38,3 +38,5 @@ build/
 .DS_Store
 /ping-service/data/*
 /pong-service/data/*
+/data/ping.service.lock
+/data/pong.service.lock

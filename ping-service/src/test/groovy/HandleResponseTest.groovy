@@ -20,7 +20,7 @@ class HandleResponseTest extends Specification {
         pingService = new PingServiceImpl(pongServiceUrl, webClientBuilder, "data/" + UUID.randomUUID().toString() + ".lock")
     }
 
-    def "test handleResponse with 2xx status"() {
+    def "test handleResponse with 200 status"() {
         given:
         def mockResponse = Mock(ClientResponse)
         mockResponse.statusCode() >> HttpStatus.OK
