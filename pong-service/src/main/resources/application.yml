@@ -1,0 +1,4 @@
+server.port: 8080
+ping:
+  service:
+    lockfile: data/pong.service.lock

@@ -1,23 +1,36 @@
 package com.example.pongservice
 
 import com.example.pongservice.service.IPongService
+import com.example.pongservice.service.impl.PongServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTestContextBootstrapper
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.BootstrapWith
+import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import spock.lang.Specification
+import spock.lang.Title
 
-// 设置spring.profiles.active=UnitTest，不启动定时任务防止干扰
-@BootstrapWith(SpringBootTestContextBootstrapper)
-@AutoConfigureWebTestClient
-@SpringBootTest(classes = PongApplication.class, useMainMethod = SpringBootTest.UseMainMethod.ALWAYS, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "spring.profiles.active=UnitTest")
+//// 设置spring.profiles.active=UnitTest，不启动定时任务防止干扰
+//@BootstrapWith(SpringBootTestContextBootstrapper)
+//@AutoConfigureWebTestClient
+//@SpringBootTest(classes = PongApplication.class, useMainMethod = SpringBootTest.UseMainMethod.ALWAYS, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "spring.profiles.active=UnitTest")
+
+@Title("PongService单测")
 class PongServiceImplTest extends Specification {
 
-    @Autowired
-    private IPongService pongService;
+    private PongServiceImpl pongService
+
+    /**
+     * 当前文件的单测执行前会执行一次
+     * @return
+     */
+    // https://spockframework.org/spock/docs/2.3/spock_primer.html
+    def setup() {
+        pongService = new PongServiceImpl()
+    }
 
     /**
      * 1秒内pong 1次，正常返回World

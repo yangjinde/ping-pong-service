@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Ping服务启动入口
  *
  * @author yangjinde
- * @date 2024/8/2
+ * @date 2024/8/15
  */
 @SpringBootApplication
 @EnableScheduling

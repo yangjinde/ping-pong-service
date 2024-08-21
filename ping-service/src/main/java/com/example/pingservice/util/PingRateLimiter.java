@@ -1,11 +1,15 @@
 package com.example.pingservice.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -13,13 +17,13 @@ import java.util.Date;
  * Ping速率控制器
  *
  * @author yangjinde
- * @date 2024/8/8
+ * @date 2024/8/15
  */
 @Slf4j
 public class PingRateLimiter {
 
     // 定义一个文件用于实现文件锁和计数器存储
-    private static final String LOCK_FILE_PATH = "F:/coding/file/ping.service.lock";
+    private static final String LOCK_FILE_PATH = "data/ping.service.lock";
 
     /**
      * 1秒钟
@@ -31,7 +35,24 @@ public class PingRateLimiter {
      */
     private static final int MAX_REQ_NUM = 2;
 
-    // 初始化文件内容，如果文件为空
+    static {
+        //判断锁文件目录不存在则创建
+        Path path = Paths.get(LOCK_FILE_PATH);
+        if (!Files.exists(path)) {
+            Path parent = path.getParent();
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    /**
+     * 初始化文件内容
+     *
+     * @param raf RandomAccessFile
+     * @throws IOException IOException
+     */
     private static void initializeFile(RandomAccessFile raf) throws IOException {
         if (raf.length() == 0) {
             raf.writeLong(System.currentTimeMillis()); // 写入当前时间戳
@@ -40,12 +61,23 @@ public class PingRateLimiter {
     }
 
     /**
-     * 速率控制，每秒钟最多允许两个请求通过
+     * 速率控制，使用默认锁文件
      *
-     * @return 如果通过返回true，否则返回false
+     * @return 通过返回true, 不通过返回false
      */
     public static boolean checkRateLimit() {
-        try (RandomAccessFile raf = new RandomAccessFile(LOCK_FILE_PATH, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
+        return checkRateLimit(LOCK_FILE_PATH);
+    }
+
+    /**
+     * 速率控制
+     *
+     * @param lockFilePath 文件锁路径
+     * @return 通过返回true, 不通过返回false
+     */
+    public static boolean checkRateLimit(String lockFilePath) {
+        lockFilePath = StringUtils.hasText(lockFilePath) ? lockFilePath : LOCK_FILE_PATH;
+        try (RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
             // 如果无法获取文件锁，说明已有其它实例在操作，返回false
             if (lock == null) {
                 return false;

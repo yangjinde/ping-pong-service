@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
  * Pong控制器
  *
  * @author yangjinde
- * @date 2024/8/4
+ * @date 2024/8/17
  */
 @Slf4j
 @RestController
@@ -23,6 +23,10 @@ public class PongController {
 
     @Autowired
     private IPongService pongService;
+
+    public PongController(IPongService pongService) {
+        this.pongService = pongService;
+    }
 
     /**
      * pong请求入口

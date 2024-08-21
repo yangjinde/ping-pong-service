@@ -3,21 +3,19 @@ package com.example.pingservice.task;
 import com.example.pingservice.service.IPingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 /**
  * Ping定时任务
  *
  * @author yangjinde
- * @date 2024/8/7
+ * @date 2024/8/16
  */
 @Slf4j
-@Configuration
-@Profile("!UnitTest") //单元测试不启动定时任务，防止干扰
+@Component
 public class PingServiceTask {
 
     @Autowired

@@ -1,11 +1,15 @@
 package com.example.pongservice.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -19,7 +23,7 @@ import java.util.Date;
 public class PongRateLimiter {
 
     // 定义一个文件用于实现文件锁和计数器存储
-    private static final String LOCK_FILE_PATH = "F:/coding/file/pong.service.lock";
+    private static final String LOCK_FILE_PATH = "data/pong.service.lock";
 
     /**
      * 1秒钟
@@ -30,6 +34,27 @@ public class PongRateLimiter {
      * 最大请求限制
      */
     private static final int MAX_REQ_NUM = 1;
+
+
+    static {
+        checkLockFilePath(LOCK_FILE_PATH);
+    }
+
+    /**
+     * 校验文件锁目录是否存在，不存在则创建
+     *
+     * @param lockFilePath 文件锁路径
+     */
+    private static void checkLockFilePath(String lockFilePath) {
+        Path path = Paths.get(lockFilePath);
+        if (!Files.exists(path)) {
+            Path parent = path.getParent();
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException ignored) {
+            }
+        }
+    }
 
     // 初始化文件内容，如果文件为空
     private static void initializeFile(RandomAccessFile raf) throws IOException {
@@ -42,10 +67,13 @@ public class PongRateLimiter {
     /**
      * 速率控制，每秒钟最多允许两个请求通过
      *
+     * @param lockFilePath 文件锁路径
      * @return 如果通过返回true，否则返回false
      */
-    public static boolean checkRateLimit() {
-        try (RandomAccessFile raf = new RandomAccessFile(LOCK_FILE_PATH, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
+    public static boolean checkRateLimit(String lockFilePath) {
+        lockFilePath = StringUtils.hasText(lockFilePath) ? lockFilePath : LOCK_FILE_PATH;
+        checkLockFilePath(lockFilePath);
+        try (RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
             // 如果无法获取文件锁，说明已有其它实例在操作，返回false
             if (lock == null) {
                 return false;

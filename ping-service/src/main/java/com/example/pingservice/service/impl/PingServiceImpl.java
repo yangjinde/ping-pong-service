@@ -17,38 +17,48 @@ import java.io.IOException;
  * PingServiceImpl
  *
  * @author yangjinde
- * @date 2024/8/3
+ * @date 2024/8/16
  */
 @Slf4j
 @Service
 public class PingServiceImpl implements IPingService {
 
-    @Value("${pong.service.url}")
-    private String pongServiceUrl;
+    //@Value("${pong.service.url}")
+    private final String pongServiceUrl;
 
     private final String SAY_CONTENT = "Hello";
 
-    private final WebClient webClient = WebClient.create();
+    private final WebClient webClient;
+    private final String lockFilePath;
+
+    public PingServiceImpl(@Value("${pong.service.url}") String pongServiceUrl, WebClient.Builder webClientBuilder,
+                           @Value("${ping.service.lockfile}")String lockFilePath) {
+        this.pongServiceUrl = pongServiceUrl;
+        this.webClient = webClientBuilder.baseUrl("http://localhost:8080").build();
+        this.lockFilePath = lockFilePath;
+    }
 
     @Override
     public Mono<ResponseEntity<String>> ping() {
         //速率控制，每秒钟最多允许2个请求通过
-        if (!PingRateLimiter.checkRateLimit()) {
+        if (!PingRateLimiter.checkRateLimit(lockFilePath)) {
             log.error("Request not send as being 'rate limited'.");
             return Mono.just(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Request not send as being 'rate limited'."));
         }
         try {
-            return webClient.post()
-                    .uri(pongServiceUrl)
-                    .bodyValue(SAY_CONTENT)
-                    .exchangeToMono(this::handleResponse)
-                    .doOnError(IOException.class, e -> {
-                        log.info("Rate limited, request not sent");
-                    });
+            return doPing();
         } catch (Exception e) {
             log.error(e.getMessage());
             return Mono.empty(); // 返回一个空的 Mono
         }
+    }
+
+    private Mono<ResponseEntity<String>> doPing() {
+        return webClient.post()
+                .uri(pongServiceUrl)
+                .bodyValue(SAY_CONTENT)
+                .exchangeToMono(this::handleResponse)
+                .doOnError(IOException.class, e -> { log.info("Rate limited, request not sent"); });
     }
 
     /**
@@ -57,7 +67,7 @@ public class PingServiceImpl implements IPingService {
      * @param response response
      * @return Mono<String>
      */
-    private Mono<ResponseEntity<String>> handleResponse(ClientResponse response) {
+    public Mono<ResponseEntity<String>> handleResponse(ClientResponse response) {
         return response.bodyToMono(String.class)
                 .flatMap(body -> {
                     if (response.statusCode().is2xxSuccessful()) {
