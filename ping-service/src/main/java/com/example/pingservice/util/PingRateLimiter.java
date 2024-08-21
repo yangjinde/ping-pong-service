@@ -1,6 +1,5 @@
 package com.example.pingservice.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.util.Date;
  * @author yangjinde
  * @date 2024/8/15
  */
-@Slf4j
 public class PingRateLimiter {
 
     // 定义一个文件用于实现文件锁和计数器存储
@@ -104,7 +102,6 @@ public class PingRateLimiter {
 
                 //yyyyMMddHHmmss
                 long currentTime = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System.currentTimeMillis())));
-
                 //log.info("startTime:{}, currentTime:{}, requestCount:{}", startTime, currentTime, requestCount);
 
                 boolean pass;

@@ -1,7 +1,6 @@
 package com.example.pongservice.controller;
 
 import com.example.pongservice.service.IPongService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +15,6 @@ import reactor.core.publisher.Mono;
  * @author yangjinde
  * @date 2024/8/17
  */
-@Slf4j
 @RestController
 @RequestMapping("/pong")
 public class PongController {

@@ -1,6 +1,5 @@
 package com.example.pongservice.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.util.Date;
  * @author yangjinde
  * @date 2024/8/9
  */
-@Slf4j
 public class PongRateLimiter {
 
     // 定义一个文件用于实现文件锁和计数器存储

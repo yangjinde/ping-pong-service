@@ -1,7 +1,7 @@
 package com.example.pingservice.task;
 
+import com.example.pingservice.logger.MyLogger;
 import com.example.pingservice.service.IPingService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
  * @author yangjinde
  * @date 2024/8/16
  */
-@Slf4j
 @Component
 public class PingServiceTask {
 
@@ -26,8 +25,7 @@ public class PingServiceTask {
      */
     @Scheduled(fixedRate = 1000)
     public void runPingTask() {
-        Mono<ResponseEntity<String>> mono = pingService.ping();
-        ResponseEntity<String> res = mono.block();
-        //log.info("res:{}", res);
+        Mono<ResponseEntity<String>> pingRes = pingService.ping();
+        MyLogger.info("Ping Result:" + pingRes.block().getBody());
     }
 }
