@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * Ping服务启动入口
+ * Ping Server Start Class
  *
  * @author yangjinde
  * @date 2024/8/15
@@ -13,6 +13,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 public class PingApplication {
+
+    /**
+     * Launches the Ping application
+     *
+     * @param args args
+     */
     public static void main(String[] args) {
         SpringApplication.run(PingApplication.class, args);
     }

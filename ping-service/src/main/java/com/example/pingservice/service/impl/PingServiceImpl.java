@@ -1,5 +1,6 @@
 package com.example.pingservice.service.impl;
 
+import com.example.pingservice.constant.Constant;
 import com.example.pingservice.logger.MyLogger;
 import com.example.pingservice.service.IPingService;
 import com.example.pingservice.util.PingRateLimiter;
@@ -25,8 +26,6 @@ public class PingServiceImpl implements IPingService {
     @Value("${pong.service.url}")
     private final String pongServiceUrl;
 
-    private final String SAY_CONTENT = "Hello";
-
     private final WebClient webClient;
     private final String lockFilePath;
 
@@ -37,6 +36,11 @@ public class PingServiceImpl implements IPingService {
         this.lockFilePath = lockFilePath;
     }
 
+    /**
+     * run Ping
+     *
+     * @return Ping Result
+     */
     @Override
     public Mono<ResponseEntity<String>> ping() {
         //速率控制，每秒钟最多允许2个请求通过
@@ -48,14 +52,19 @@ public class PingServiceImpl implements IPingService {
             return doPing();
         } catch (Exception e) {
             MyLogger.error(e.getMessage());
-            return Mono.empty(); // 返回一个空的 Mono
+            return Mono.empty(); // return a empty Mono
         }
     }
 
+    /**
+     * do Ping
+     *
+     * @return Ping Result
+     */
     private Mono<ResponseEntity<String>> doPing() {
         return webClient.post()
                 .uri(pongServiceUrl)
-                .bodyValue(SAY_CONTENT)
+                .bodyValue(Constant.SAY_CONTENT)
                 .exchangeToMono(this::handleResponse)
                 .doOnError(IOException.class, e -> {
                     MyLogger.info("Rate limited, request not sent");

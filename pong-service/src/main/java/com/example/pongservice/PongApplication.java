@@ -4,13 +4,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Ping服务启动入口
+ * Pong Server Start Class
  *
  * @author yangjinde
- * @date 2024/8/17
+ * @date 2024/8/15
  */
 @SpringBootApplication
 public class PongApplication {
+
+    /**
+     * Launches the Pong application
+     *
+     * @param args args
+     */
     public static void main(String[] args) {
         SpringApplication.run(PongApplication.class, args);
     }

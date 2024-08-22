@@ -5,14 +5,7 @@ import reactor.core.publisher.Mono
 import spock.lang.Specification
 import spock.lang.Title
 
-/**
- * Ping控制器测试
- *
- * @author yangjinde
- *
- * @date 2024/8/9
- */
-@Title("Ping控制器测试")
+@Title("PongController Test")
 class PongControllerTest extends Specification {
 
     private def pongService = Mock(IPongService)

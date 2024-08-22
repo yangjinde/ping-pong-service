@@ -12,9 +12,9 @@ import reactor.core.publisher.Mono;
 public interface IPingService {
 
     /**
-     * 执行Ping
+     * run Ping
      *
-     * @return Mono<String>
+     * @return Ping Result
      */
     Mono<ResponseEntity<String>> ping();
 }

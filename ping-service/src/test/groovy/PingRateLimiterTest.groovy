@@ -2,19 +2,18 @@
 
 import com.example.pingservice.util.PingRateLimiter
 import spock.lang.Specification
+import spock.lang.Title
 
 /**
- * Ping速率控制测试
+ * PingRateLimiter Test
  *
  * @author yangjinde
  *
  * @date 2024/8/9
  */
+@Title("PingRateLimiter Test")
 class PingRateLimiterTest extends Specification {
 
-    /**
-     * 测试1秒内请求1次，正常返回true
-     */
     def "test 1 request in 1 second"() {
         when:
         def result = PingRateLimiter.checkRateLimit("data/" + UUID.randomUUID().toString() + ".lock") // 1次请求
@@ -22,9 +21,6 @@ class PingRateLimiterTest extends Specification {
         Boolean.TRUE == result
     }
 
-    /**
-     * 测试1秒内请求2次，正常返回true
-     */
     def "test 2 request in 1 second"() {
         when:
         PingRateLimiter.checkRateLimit() // 第1次请求
@@ -33,9 +29,6 @@ class PingRateLimiterTest extends Specification {
         Boolean.TRUE == result
     }
 
-    /**
-     * 测试1秒内请求3次，正常返回true
-     */
     def "test 3 request in 1 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
@@ -46,9 +39,6 @@ class PingRateLimiterTest extends Specification {
         Boolean.FALSE == result
     }
 
-    /**
-     * 测试1秒内请求3次，正常返回true
-     */
     def "test 3 request in 2 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:

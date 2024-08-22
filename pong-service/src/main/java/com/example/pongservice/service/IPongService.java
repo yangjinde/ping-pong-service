@@ -12,10 +12,10 @@ import reactor.core.publisher.Mono;
 public interface IPongService {
 
     /**
-     * pong请求入口
+     * pong
      *
-     * @param messageMono ping入参
-     * @return Mono<ResponseEntity < String>>
+     * @param messageMono pong param
+     * @return the pong result
      */
     Mono<ResponseEntity<String>> pong(Mono<String> messageMono);
 }

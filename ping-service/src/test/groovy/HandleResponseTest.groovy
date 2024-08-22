@@ -5,7 +5,9 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import spock.lang.Specification
+import spock.lang.Title
 
+@Title("HandleResponse Test")
 class HandleResponseTest extends Specification {
 
     private def pongServiceUrl = "http://localhost:8080/pong"

@@ -7,13 +7,13 @@ import spock.lang.Specification
 import spock.lang.Title
 
 /**
- * Ping控制器测试
+ * PingController Test
  *
  * @author yangjinde
  *
  * @date 2024/8/9
  */
-@Title("Ping控制器测试")
+@Title("PingController Test")
 class PingControllerTest extends Specification {
 
     private def pingService = Mock(IPingService)

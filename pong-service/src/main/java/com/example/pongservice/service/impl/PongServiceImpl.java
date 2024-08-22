@@ -25,14 +25,14 @@ public class PongServiceImpl implements IPongService {
     }
 
     /**
-     * pong请求入口
+     * pong
      *
-     * @param messageMono ping入参
-     * @return Mono<ResponseEntity < String>>
+     * @param messageMono pong param
+     * @return the pong result
      */
     @Override
     public Mono<ResponseEntity<String>> pong(Mono<String> messageMono) {
-        //速率控制，每秒钟最多允许1个请求通过
+        //Rate control, allowing up to 1 request to pass per second
         if (!PongRateLimiter.checkRateLimit(lockFilePath)) {
             MyLogger.error("Too many requests in one second");
             return Mono.just(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests in one second"));

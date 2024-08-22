@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 /**
- * Pong控制器
+ * Pong Controller
  *
  * @author yangjinde
- * @date 2024/8/17
+ * @date 2024/8/15
  */
 @RestController
 @RequestMapping("/pong")

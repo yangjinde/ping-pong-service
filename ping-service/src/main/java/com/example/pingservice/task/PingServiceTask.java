@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 /**
- * Ping定时任务
+ * Ping task
  *
  * @author yangjinde
  * @date 2024/8/16
@@ -21,7 +21,7 @@ public class PingServiceTask {
     private IPingService pingService;
 
     /**
-     * 随机定时任务，1秒执行一次
+     * Scheduled tasks, executed once per second
      */
     @Scheduled(fixedRate = 1000)
     public void runPingTask() {

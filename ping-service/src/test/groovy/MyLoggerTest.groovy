@@ -1,11 +1,13 @@
 import com.example.pingservice.constant.Constant
 import com.example.pingservice.logger.MyLogger
 import spock.lang.Specification
+import spock.lang.Title
 
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
+@Title("MyLogger Test")
 class MyLoggerTest extends Specification {
 
     def "test createFileIfNotExists"() {

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 /**
- * Ping控制器
+ * Ping Controller
  *
  * @author yangjinde
  * @date 2024/8/15
@@ -23,6 +23,11 @@ public class PingController {
         this.pingService = pingService;
     }
 
+    /**
+     * ping
+     *
+     * @return ping result
+     */
     @GetMapping()
     public Mono<ResponseEntity<String>> ping() {
         return pingService.ping();

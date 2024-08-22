@@ -6,6 +6,7 @@ server:
 ping:
   service:
     lockfile: data/ping.service.lock
+
 pong:
   service:
     url: http://localhost:8080/pong

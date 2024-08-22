@@ -9,7 +9,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 /**
- * 自定义日志
+ * Custom Log
  *
  * @author yangjinde
  * @date 2024/8/21
@@ -22,29 +22,46 @@ public class MyLogger {
         initLogFile(Constant.LOG_PATH);
     }
 
+    /**
+     * write info message
+     *
+     * @param message message
+     */
     public static void info(String message) {
         LOGGER.info(message);
     }
 
+    /**
+     * write warn message
+     *
+     * @param message message
+     */
     public static void warn(String message) {
         LOGGER.warning(message);
     }
 
+    /**
+     * write error message
+     *
+     * @param message message
+     */
     public static void error(String message) {
         LOGGER.severe(message);
     }
 
     /**
-     * 初始化日志文件
+     * initLogFile
+     *
+     * @param logPath the log file path
      */
     public static void initLogFile(String logPath) {
         logPath = StringUtils.hasLength(logPath) ? logPath : Constant.LOG_PATH;
         try {
-            // 检查并创建目录和文件
+            // Check and create directories and files
             createFileIfNotExists(logPath);
-            // 配置FileHandler
+            // Config FileHandler
             FileHandler fileHandler = new FileHandler(Constant.LOG_PATH, true);
-            // 设置自定义日志格式
+            // Set custom log format
             fileHandler.setFormatter(new LoggerFormatter());
             LOGGER.addHandler(fileHandler);
         } catch (IOException e) {
@@ -53,7 +70,9 @@ public class MyLogger {
     }
 
     /**
-     * 判断如果文件不存在着创建
+     * Determine if the file does not exist for creation
+     *
+     * @param filePath the log file path
      */
     public static void createFileIfNotExists(String filePath) {
         File logFile = new File(filePath);
