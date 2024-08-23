@@ -1,5 +1,3 @@
-
-
 import com.example.pingservice.util.PingRateLimiter
 import spock.lang.Specification
 import spock.lang.Title
@@ -16,15 +14,16 @@ class PingRateLimiterTest extends Specification {
 
     def "test 1 request in 1 second"() {
         when:
-        def result = PingRateLimiter.checkRateLimit("data/" + UUID.randomUUID().toString() + ".lock") // 1次请求
+        def result = PingRateLimiter.checkRateLimit("data/" + UUID.randomUUID().toString() + ".lock") // 1 request
         then:
         Boolean.TRUE == result
     }
 
     def "test 2 request in 1 second"() {
+        String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
-        PingRateLimiter.checkRateLimit() // 第1次请求
-        def result = PingRateLimiter.checkRateLimit("data/" + UUID.randomUUID().toString() + ".lock") // 第2次请求
+        PingRateLimiter.checkRateLimit(file) // 1 request
+        def result = PingRateLimiter.checkRateLimit(file) // 2 request
         then:
         Boolean.TRUE == result
     }
@@ -32,9 +31,9 @@ class PingRateLimiterTest extends Specification {
     def "test 3 request in 1 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
-        PingRateLimiter.checkRateLimit(file) // 第1次请求
-        PingRateLimiter.checkRateLimit(file) // 第2次请求
-        def result = PingRateLimiter.checkRateLimit(file) // 第3次请求，应该被拒绝
+        PingRateLimiter.checkRateLimit(file) // 1 request
+        PingRateLimiter.checkRateLimit(file) // 2 request
+        def result = PingRateLimiter.checkRateLimit(file) // 3 request
         then:
         Boolean.FALSE == result
     }
@@ -42,10 +41,17 @@ class PingRateLimiterTest extends Specification {
     def "test 3 request in 2 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
-        PingRateLimiter.checkRateLimit(file) // 第1次请求
-        PingRateLimiter.checkRateLimit(file) // 第2次请求
-        sleep(1200) // 等待1.3秒，确保超过1秒时间窗口
-        def result = PingRateLimiter.checkRateLimit(file) // 第3次请求，应该被允许
+        PingRateLimiter.checkRateLimit(file) // 1 request
+        PingRateLimiter.checkRateLimit(file) // 2 request
+        sleep(1300) // sleep 1.3 seconds
+        def result = PingRateLimiter.checkRateLimit(file) // 3 request
+        then:
+        Boolean.TRUE == result
+    }
+
+    def "test checkRateLimit with out lockFilePath"() {
+        when:
+        def result = PingRateLimiter.checkRateLimit()
         then:
         Boolean.TRUE == result
     }

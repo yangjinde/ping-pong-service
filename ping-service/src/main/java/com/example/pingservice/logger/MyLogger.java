@@ -4,7 +4,6 @@ import com.example.pingservice.constant.Constant;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
@@ -54,7 +53,7 @@ public class MyLogger {
      *
      * @param logPath the log file path
      */
-    public static void initLogFile(String logPath) {
+    public static boolean initLogFile(String logPath) {
         logPath = StringUtils.hasLength(logPath) ? logPath : Constant.LOG_PATH;
         try {
             // Check and create directories and files
@@ -64,8 +63,10 @@ public class MyLogger {
             // Set custom log format
             fileHandler.setFormatter(new LoggerFormatter());
             LOGGER.addHandler(fileHandler);
-        } catch (IOException e) {
+            return true;
+        } catch (Exception e) {
             LOGGER.severe("Failed to initialize logger handler: " + e.getMessage());
+            return false;
         }
     }
 
@@ -77,12 +78,13 @@ public class MyLogger {
     public static void createFileIfNotExists(String filePath) {
         File logFile = new File(filePath);
         if (!logFile.exists()) {
-            // 创建父目录
-            logFile.getParentFile().mkdirs();
-            // 创建文件
             try {
+                // 创建父目录
+                logFile.getParentFile().mkdirs();
+                // 创建文件
                 logFile.createNewFile();
-            } catch (IOException ignored) {
+            } catch (Exception ignored) {
+                throw new RuntimeException();
             }
         }
     }

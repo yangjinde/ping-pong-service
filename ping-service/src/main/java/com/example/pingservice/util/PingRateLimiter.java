@@ -1,6 +1,7 @@
 package com.example.pingservice.util;
 
 import com.example.pingservice.constant.Constant;
+import io.netty.util.internal.ThreadExecutorMap;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -48,11 +49,6 @@ public class PingRateLimiter {
 
         //try get the file lock
         try (RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
-            // if can not get the lock ，return false
-            if (lock == null) {
-                return false;
-            }
-
             // if not exist the count file, init
             PingRateLimiter.initializeFile(raf);
 
@@ -87,6 +83,7 @@ public class PingRateLimiter {
             }
             return pass;
         } catch (Exception e) {
+            e.getMessage();
             return false;
         }
     }

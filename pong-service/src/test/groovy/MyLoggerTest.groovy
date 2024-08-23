@@ -57,4 +57,28 @@ class MyLoggerTest extends Specification {
         Files.exists(logFilePath)
         Files.readString(logFilePath).contains("error")
     }
+
+    def "test initLogFile fail"() {
+        when:
+        boolean  result = MyLogger.initLogFile("xxx")
+
+        then:
+        Boolean.FALSE == result
+    }
+
+    def "test initLogFile with no logPath"() {
+        when:
+        boolean  result = MyLogger.initLogFile(null)
+
+        then:
+        Boolean.TRUE == result
+    }
+
+    def "test constructor"() {
+        when:
+        MyLogger.class.getConstructor().newInstance()
+
+        then:
+        noExceptionThrown()
+    }
 }

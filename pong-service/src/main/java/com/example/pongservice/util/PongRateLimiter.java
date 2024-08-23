@@ -55,11 +55,6 @@ public class PongRateLimiter {
 
         //try get the file lock
         try (RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
-            // if can not get the lock ，return false
-            if (lock == null) {
-                return false;
-            }
-
             // if not exist the count file, init
             PongRateLimiter.initializeFile(raf);
 

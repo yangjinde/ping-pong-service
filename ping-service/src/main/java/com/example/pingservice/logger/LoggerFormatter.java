@@ -15,7 +15,7 @@ import java.util.logging.LogRecord;
  * @author yangjinde
  * @date 2024/8/21
  */
-class LoggerFormatter extends Formatter {
+public class LoggerFormatter extends Formatter {
 
     /**
      * Customize record format

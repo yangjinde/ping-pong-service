@@ -20,6 +20,10 @@ public class PingServiceTask {
     @Autowired
     private IPingService pingService;
 
+    public PingServiceTask(IPingService pingService) {
+        this.pingService = pingService;
+    }
+
     /**
      * Scheduled tasks, executed once per second
      */
