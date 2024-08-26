@@ -63,18 +63,18 @@ public class PingRateLimiter {
             //yyyyMMddHHmmss
             long currentTime = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System.currentTimeMillis())));
 
-            //interval exceeds 1 second, reset time and count, return true
+            //interval exceeds 1 second, reset time and count, return FileLock
             if (currentTime - startTime >= Constant.ONE_SECOND) {
                 raf.seek(0);
                 raf.writeLong(currentTime);
                 raf.writeInt(1);
             }
-            // if in a second request count more than the limit, return false
+            // if in a second request count more than the limit, return null
             else if (requestCount >= Constant.MAX_REQ_NUM) {
                 releaseFileLock(fileLock);
                 return null;
             }
-            // if in a second request count less than the limit, count + 1, return true
+            // if in a second request count less than the limit, count + 1, return FileLock
             else {
                 raf.seek(0);
                 raf.writeLong(startTime);

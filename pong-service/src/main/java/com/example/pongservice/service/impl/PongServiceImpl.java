@@ -46,7 +46,7 @@ public class PongServiceImpl implements IPongService {
                     return Mono.just(pongRes);
                 });
             } else {
-                MyLogger.error("  Request send & Pong throttled it.");
+                MyLogger.error("Request send & Pong throttled it.");
                 pongRes.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 pongRes.setErrorMsg("Too many requests in one second");
                 return Mono.just(pongRes);
