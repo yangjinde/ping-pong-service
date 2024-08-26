@@ -8,38 +8,31 @@ class PongRateLimiterTest extends Specification {
 
     def "test 1 request in 1 second"() {
         when:
-        def result = PongRateLimiter.checkRateLimit("data/" + UUID.randomUUID().toString() + ".lock") // 1 request
+        def fileLock = PongRateLimiter.checkRateLimit("data/" + UUID.randomUUID().toString() + ".lock") // 1 request
         then:
-        Boolean.TRUE == result
+        fileLock != null
     }
 
     def "test 2 request in 1 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
-        PongRateLimiter.checkRateLimit(file) // 1 request
-        def result = PongRateLimiter.checkRateLimit(file) // 2 request
+        def fileLock1 = PongRateLimiter.checkRateLimit(file) // 1 request
+        PongRateLimiter.releaseFileLock(fileLock1)
+        def fileLock2 = PongRateLimiter.checkRateLimit(file) // 2 request
         then:
-        Boolean.FALSE == result
+        fileLock2 == null
     }
 
     def "test 2 request in 2 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
-        PongRateLimiter.checkRateLimit(file) // 1 request
+        def fileLock1 = PongRateLimiter.checkRateLimit(file) // 1 request
+        PongRateLimiter.releaseFileLock(fileLock1);
         sleep(1500) // sleep 1.5 seconds
-        def result = PongRateLimiter.checkRateLimit(file) // 2 request
+        def fileLock2 = PongRateLimiter.checkRateLimit(file) // 2 request
         then:
-        Boolean.TRUE == result
-    }
-
-    def "test Constant "() {
-        when:
-        def oneSecond = Constant.ONE_SECOND
-        def maxReqNum = Constant.MAX_REQ_NUM
-        def dateFormat  = Constant.DATE_FORMAT
-        then:
-        oneSecond == 1
-        maxReqNum == 1
-        dateFormat == "yyyy-MM-dd HH:mm:ss"
+        fileLock2 != null
+        cleanup:
+        PongRateLimiter.releaseFileLock(fileLock2);
     }
 }

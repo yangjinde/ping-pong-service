@@ -1,5 +1,6 @@
 package com.example.pingservice.controller;
 
+import com.example.pingservice.dto.PingResDto;
 import com.example.pingservice.service.IPingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,7 @@ public class PingController {
      * @return ping result
      */
     @GetMapping()
-    public Mono<ResponseEntity<String>> ping() {
+    public Mono<PingResDto> ping() {
         return pingService.ping();
     }
 }

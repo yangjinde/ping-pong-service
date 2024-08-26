@@ -14,45 +14,58 @@ class PingRateLimiterTest extends Specification {
 
     def "test 1 request in 1 second"() {
         when:
-        def result = PingRateLimiter.checkRateLimit("data/" + UUID.randomUUID().toString() + ".lock") // 1 request
+        def fileLock = PingRateLimiter.checkRateLimit("data/" + UUID.randomUUID().toString() + ".lock") // 1 request
         then:
-        Boolean.TRUE == result
+        fileLock != null
+        cleanup:
+        PingRateLimiter.releaseFileLock(fileLock)
     }
 
     def "test 2 request in 1 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
-        PingRateLimiter.checkRateLimit(file) // 1 request
-        def result = PingRateLimiter.checkRateLimit(file) // 2 request
+        def fileLock1 = PingRateLimiter.checkRateLimit(file) // 1 request
+        PingRateLimiter.releaseFileLock(fileLock1);
+        def fileLock2 = PingRateLimiter.checkRateLimit(file) // 2 request
         then:
-        Boolean.TRUE == result
+        fileLock2 != null
+        cleanup:
+        PingRateLimiter.releaseFileLock(fileLock2)
     }
 
     def "test 3 request in 1 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
-        PingRateLimiter.checkRateLimit(file) // 1 request
-        PingRateLimiter.checkRateLimit(file) // 2 request
-        def result = PingRateLimiter.checkRateLimit(file) // 3 request
+        def fileLock1 = PingRateLimiter.checkRateLimit(file) // 1 request
+        PingRateLimiter.releaseFileLock(fileLock1);
+        def fileLock2 = PingRateLimiter.checkRateLimit(file) // 2 request
+        PingRateLimiter.releaseFileLock(fileLock2);
+        def fileLock3 = PingRateLimiter.checkRateLimit(file) // 3 request
         then:
-        Boolean.FALSE == result
+        fileLock3 == null
     }
 
     def "test 3 request in 2 second"() {
         String file = "data/" + UUID.randomUUID().toString() + ".lock";
         when:
-        PingRateLimiter.checkRateLimit(file) // 1 request
-        PingRateLimiter.checkRateLimit(file) // 2 request
+        def fileLock1 = PingRateLimiter.checkRateLimit(file) // 1 request
+        PingRateLimiter.releaseFileLock(fileLock1);
+        def fileLock2 = PingRateLimiter.checkRateLimit(file) // 2 request
+        PingRateLimiter.releaseFileLock(fileLock2);
         sleep(1300) // sleep 1.3 seconds
-        def result = PingRateLimiter.checkRateLimit(file) // 3 request
+        def fileLock3 = PingRateLimiter.checkRateLimit(file) // 3 request
         then:
-        Boolean.TRUE == result
+        fileLock3 != null
+        cleanup:
+        PingRateLimiter.releaseFileLock(fileLock3)
     }
 
     def "test checkRateLimit with out lockFilePath"() {
         when:
-        def result = PingRateLimiter.checkRateLimit()
+        def fileLock = PingRateLimiter.checkRateLimit()
         then:
-        Boolean.TRUE == result
+        fileLock != null
+        cleanup:
+        PingRateLimiter.releaseFileLock(fileLock)
     }
 }

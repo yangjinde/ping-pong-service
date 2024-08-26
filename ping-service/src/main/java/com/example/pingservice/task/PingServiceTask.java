@@ -1,9 +1,8 @@
 package com.example.pingservice.task;
 
-import com.example.pingservice.logger.MyLogger;
+import com.example.pingservice.dto.PingResDto;
 import com.example.pingservice.service.IPingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -29,7 +28,7 @@ public class PingServiceTask {
      */
     @Scheduled(fixedRate = 1000)
     public void runPingTask() {
-        Mono<ResponseEntity<String>> pingRes = pingService.ping();
-        MyLogger.info("Ping Result:" + pingRes.block().getBody());
+        Mono<PingResDto> pingResMono = pingService.ping();
+        pingResMono.block();
     }
 }

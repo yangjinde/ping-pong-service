@@ -1,7 +1,7 @@
 import com.example.pingservice.controller.PingController
+import com.example.pingservice.dto.PingResDto
 import com.example.pingservice.service.IPingService
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import reactor.core.publisher.Mono
 import spock.lang.Specification
 import spock.lang.Title
@@ -21,13 +21,16 @@ class PingControllerTest extends Specification {
 
 
     def "test PingControllerTest"() {
-        def ok = Mono.just(ResponseEntity.status(HttpStatus.OK).body("World"))
+        PingResDto pingRes = new PingResDto();
+        pingRes.setStatus(HttpStatus.OK.value())
+        pingRes.setBody("World");
+        def res = Mono.just(pingRes)
         given:
-        pingService.ping() >> ok
+        pingService.ping() >> res
         when:
-        def ping = pingController.ping()
+        def result = pingController.ping()
         then:
-        ping == ok
+        result.block().body == "World"
     }
 
 }

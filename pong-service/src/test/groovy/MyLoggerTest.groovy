@@ -47,7 +47,7 @@ class MyLoggerTest extends Specification {
 
     def "test error info"() {
         given:
-        String logPath = Constant.LOG_PATH
+        String logPath = new Constant().LOG_PATH
         Path logFilePath = Paths.get(logPath)
 
         when:

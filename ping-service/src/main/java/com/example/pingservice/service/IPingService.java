@@ -1,5 +1,6 @@
 package com.example.pingservice.service;
 
+import com.example.pingservice.dto.PingResDto;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
@@ -16,5 +17,5 @@ public interface IPingService {
      *
      * @return Ping Result
      */
-    Mono<ResponseEntity<String>> ping();
+    Mono<PingResDto> ping();
 }

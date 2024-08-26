@@ -26,35 +26,22 @@ public class PongRateLimiter {
     }
 
     /**
-     * Rate control, using default lock file
-     *
-     * @return pass return true, else return false
-     */
-    private static void checkLockFilePath(String lockFilePath) {
-        Path path = Paths.get(lockFilePath);
-        if (!Files.exists(path)) {
-            Path parent = path.getParent();
-            try {
-                Files.createDirectories(parent);
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
-    /**
      * rate control
      *
      * @param lockFilePath lock file path
      * @return Judging by the form of obtaining the file lock, if the lock is obtained, return true else return false
      */
-    public static boolean checkRateLimit(String lockFilePath) {
+    public static FileLock checkRateLimit(String lockFilePath) {
         lockFilePath = StringUtils.hasText(lockFilePath) ? lockFilePath : Constant.LOCK_FILE_PATH;
 
         // if the lock file directory not exists, create
         checkLockFilePath(lockFilePath);
 
         //try get the file lock
-        try (RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
+        try {
+            RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw");
+            FileChannel channel = raf.getChannel();
+            FileLock lock = channel.lock();
             // if not exist the count file, init
             PongRateLimiter.initializeFile(raf);
 
@@ -67,29 +54,26 @@ public class PongRateLimiter {
             //yyyyMMddHHmmss
             long currentTime = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System.currentTimeMillis())));
 
-            boolean pass;
-            //interval exceeds 1 second, reset time and count, return true
+            //interval exceeds 1 second, reset time and count, return FileLock
             if (currentTime - startTime >= Constant.ONE_SECOND) {
                 raf.seek(0);
                 raf.writeLong(currentTime);
                 raf.writeInt(1);
-                pass = true;
             }
-            // if in a second request count more than the limit, return false
+            // if in a second request count more than the limit, return null
             else if (requestCount >= Constant.MAX_REQ_NUM) {
-                pass = false;
+                return null;
             }
-            // if in a second request count less than the limit, count + 1, return true
+            // if in a second request count less than the limit, count + 1, return FileLock
             else {
                 raf.seek(0);
                 raf.writeLong(startTime);
                 raf.writeInt(requestCount + 1);
-                pass = true;
             }
-            return pass;
+            return lock;
 
         } catch (Exception e) {
-            return false; // 出现异常时，返回false
+            return null;
         }
     }
 
@@ -106,6 +90,37 @@ public class PongRateLimiter {
             raf.writeLong(currentTime);
             // Write the count 0
             raf.writeInt(0);
+        }
+    }
+
+    /**
+     * Rate control, using default lock file
+     *
+     * @return pass return true, else return false
+     */
+    private static void checkLockFilePath(String lockFilePath) {
+        Path path = Paths.get(lockFilePath);
+        if (!Files.exists(path)) {
+            Path parent = path.getParent();
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    /**
+     * release fileLock
+     *
+     * @param fileLock fileLock
+     */
+    public static void releaseFileLock(FileLock fileLock) {
+        try {
+            if (null != fileLock) {
+                fileLock.release();
+            }
+        } catch (IOException ignored) {
+
         }
     }
 }

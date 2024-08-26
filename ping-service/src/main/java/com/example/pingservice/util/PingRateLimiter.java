@@ -1,7 +1,6 @@
 package com.example.pingservice.util;
 
 import com.example.pingservice.constant.Constant;
-import io.netty.util.internal.ThreadExecutorMap;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ public class PingRateLimiter {
      *
      * @return pass return true, else return false
      */
-    public static boolean checkRateLimit() {
+    public static FileLock checkRateLimit() {
         return checkRateLimit(Constant.LOCK_FILE_PATH);
     }
 
@@ -39,16 +38,19 @@ public class PingRateLimiter {
      * rate control
      *
      * @param lockFilePath lock file path
-     * @return Judging by the form of obtaining the file lock, if the lock is obtained, return true else return false
+     * @return if get the FileLock ,return FileLock, else return null
      */
-    public static boolean checkRateLimit(String lockFilePath) {
+    public static FileLock checkRateLimit(String lockFilePath) {
         lockFilePath = StringUtils.hasText(lockFilePath) ? lockFilePath : Constant.LOCK_FILE_PATH;
 
         // if the lock file directory not exists, create
         checkLockFilePath(lockFilePath);
 
         //try get the file lock
-        try (RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw"); FileChannel channel = raf.getChannel(); FileLock lock = channel.lock()) {
+        try {
+            RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw");
+            FileChannel channel = raf.getChannel();
+            FileLock fileLock = channel.lock();
             // if not exist the count file, init
             PingRateLimiter.initializeFile(raf);
 
@@ -61,17 +63,15 @@ public class PingRateLimiter {
             //yyyyMMddHHmmss
             long currentTime = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System.currentTimeMillis())));
 
-            boolean pass;
             //interval exceeds 1 second, reset time and count, return true
             if (currentTime - startTime >= Constant.ONE_SECOND) {
                 raf.seek(0);
                 raf.writeLong(currentTime);
                 raf.writeInt(1);
-                pass = true;
             }
             // if in a second request count more than the limit, return false
             else if (requestCount >= Constant.MAX_REQ_NUM) {
-                pass = false;
+                return null;
             }
             // if in a second request count less than the limit, count + 1, return true
             else {
@@ -79,12 +79,10 @@ public class PingRateLimiter {
                 raf.writeLong(startTime);
                 //count + 1
                 raf.writeInt(requestCount + 1);
-                pass = true;
             }
-            return pass;
+            return fileLock;
         } catch (Exception e) {
-            e.getMessage();
-            return false;
+            return null;
         }
     }
 
@@ -117,6 +115,21 @@ public class PingRateLimiter {
             raf.writeLong(currentTime);
             // Write the count 0
             raf.writeInt(0);
+        }
+    }
+
+    /**
+     * release fileLock
+     *
+     * @param fileLock fileLock
+     */
+    public static void releaseFileLock(FileLock fileLock) {
+        try {
+            if (null != fileLock) {
+                fileLock.release();
+            }
+        } catch (IOException ignored) {
+
         }
     }
 }

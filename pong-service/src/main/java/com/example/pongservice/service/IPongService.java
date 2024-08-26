@@ -1,5 +1,6 @@
 package com.example.pongservice.service;
 
+import com.example.pongservice.dto.PongResDto;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
@@ -17,5 +18,5 @@ public interface IPongService {
      * @param messageMono pong param
      * @return the pong result
      */
-    Mono<ResponseEntity<String>> pong(Mono<String> messageMono);
+    Mono<PongResDto> pong(Mono<String> messageMono);
 }

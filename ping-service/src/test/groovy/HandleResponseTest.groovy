@@ -1,3 +1,4 @@
+import com.example.pingservice.dto.PingResDto
 import com.example.pingservice.service.impl.PingServiceImpl
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.ClientResponse
@@ -26,15 +27,18 @@ class HandleResponseTest extends Specification {
         given:
         def mockResponse = Mock(ClientResponse)
         mockResponse.statusCode() >> HttpStatus.OK
-        mockResponse.bodyToMono(String.class) >> Mono.just("Success")
+        PingResDto pingRes = new PingResDto();
+        pingRes.setStatus(HttpStatus.OK.value())
+        pingRes.setBody("World")
+        mockResponse.bodyToMono(PingResDto.class) >> Mono.just(pingRes)
 
         when:
         def result = pingService.handleResponse(mockResponse)
 
         then:
         StepVerifier.create(result)
-                .expectNextMatches { responseEntity ->
-                    responseEntity.statusCode == HttpStatus.OK && responseEntity.body == "Success"
+                .expectNextMatches { pingResDto ->
+                    pingResDto.status == HttpStatus.OK.value() && pingResDto.body == "World"
                 }
                 .verifyComplete()
     }
@@ -43,15 +47,18 @@ class HandleResponseTest extends Specification {
         given:
         def mockResponse = Mock(ClientResponse)
         mockResponse.statusCode() >> HttpStatus.TOO_MANY_REQUESTS
-        mockResponse.bodyToMono(String.class) >> Mono.just("Throttled")
+        PingResDto pingRes = new PingResDto();
+        pingRes.setStatus(HttpStatus.TOO_MANY_REQUESTS.value())
+        pingRes.setErrorMsg(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())
+        mockResponse.bodyToMono(PingResDto.class) >> Mono.just(pingRes)
 
         when:
         def result = pingService.handleResponse(mockResponse)
 
         then:
         StepVerifier.create(result)
-                .expectNextMatches { responseEntity ->
-                    responseEntity.statusCode == HttpStatus.TOO_MANY_REQUESTS && responseEntity.body == "Throttled"
+                .expectNextMatches { pingResDto ->
+                    pingResDto.status == HttpStatus.TOO_MANY_REQUESTS.value() && pingResDto.errorMsg == HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()
                 }
                 .verifyComplete()
     }
@@ -60,15 +67,18 @@ class HandleResponseTest extends Specification {
         given:
         def mockResponse = Mock(ClientResponse)
         mockResponse.statusCode() >> HttpStatus.INTERNAL_SERVER_ERROR
-        mockResponse.bodyToMono(String.class) >> Mono.just("Error")
+        PingResDto pingRes = new PingResDto();
+        pingRes.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        pingRes.setErrorMsg(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+        mockResponse.bodyToMono(PingResDto.class) >> Mono.just(pingRes)
 
         when:
         def result = pingService.handleResponse(mockResponse)
 
         then:
         StepVerifier.create(result)
-                .expectNextMatches { responseEntity ->
-                    responseEntity.statusCode == HttpStatus.INTERNAL_SERVER_ERROR && responseEntity.body == "Error"
+                .expectNextMatches { pingResDto ->
+                    pingResDto.status == HttpStatus.INTERNAL_SERVER_ERROR.value() && pingResDto.errorMsg == HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()
                 }
                 .verifyComplete()
     }

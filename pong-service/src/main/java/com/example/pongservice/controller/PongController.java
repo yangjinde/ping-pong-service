@@ -1,5 +1,6 @@
 package com.example.pongservice.controller;
 
+import com.example.pongservice.dto.PongResDto;
 import com.example.pongservice.service.IPongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class PongController {
      * @return Mono<ResponseEntity < String>>
      */
     @PostMapping
-    public Mono<ResponseEntity<String>> pong(@RequestBody Mono<String> messageMono) {
+    public Mono<PongResDto> pong(@RequestBody Mono<String> messageMono) {
         return pongService.pong(messageMono);
     }
 }

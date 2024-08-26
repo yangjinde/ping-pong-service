@@ -1,3 +1,4 @@
+import com.example.pongservice.dto.PongResDto
 import com.example.pongservice.service.impl.PongServiceImpl
 import org.springframework.http.HttpStatus
 import reactor.core.publisher.Mono
@@ -30,8 +31,8 @@ class PongServiceImplTest extends Specification {
         Mono<String> monoReq = Mono.just("Hello");
         when:
         def res1 = pongService.pong(monoReq).block().body
-        def res2StatusCode = pongService.pong(monoReq).block().statusCode
+        def res2StatusCode = pongService.pong(monoReq).block().status
         then:
-        res1 == "World" && res2StatusCode == HttpStatus.TOO_MANY_REQUESTS
+        res1 == "World" && res2StatusCode == HttpStatus.TOO_MANY_REQUESTS.value()
     }
 }

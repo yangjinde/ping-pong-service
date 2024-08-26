@@ -1,13 +1,15 @@
 package com.example.pongservice.service.impl;
 
+import com.example.pongservice.dto.PongResDto;
 import com.example.pongservice.logger.MyLogger;
 import com.example.pongservice.service.IPongService;
 import com.example.pongservice.util.PongRateLimiter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.nio.channels.FileLock;
 
 /**
  * PongServiceImpl
@@ -31,15 +33,26 @@ public class PongServiceImpl implements IPongService {
      * @return the pong result
      */
     @Override
-    public Mono<ResponseEntity<String>> pong(Mono<String> messageMono) {
+    public Mono<PongResDto> pong(Mono<String> messageMono) {
+        PongResDto pongRes = new PongResDto();
         //Rate control, allowing up to 1 request to pass per second
-        if (!PongRateLimiter.checkRateLimit(lockFilePath)) {
-            MyLogger.error("Too many requests in one second");
-            return Mono.just(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests in one second"));
+        FileLock fileLock = PongRateLimiter.checkRateLimit(lockFilePath);
+        try {
+            if (null != fileLock) {
+                return messageMono.flatMap(message -> {
+                    MyLogger.info("Ping: " + message);
+                    MyLogger.info("Pong: World");
+                    pongRes.setStatus(HttpStatus.OK.value());
+                    pongRes.setBody("World");
+                    return Mono.just(pongRes);
+                });
+            } else {
+                pongRes.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                pongRes.setErrorMsg("Too many requests in one second");
+                return Mono.just(pongRes);
+            }
+        } finally {
+            PongRateLimiter.releaseFileLock(fileLock);
         }
-        return messageMono.flatMap(message -> {
-            MyLogger.info("Received from Ping: " + message + " & Respond World");
-            return Mono.just(ResponseEntity.ok().body("World"));
-        });
     }
 }

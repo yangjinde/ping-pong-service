@@ -1,18 +1,19 @@
 package com.example.pingservice.service.impl;
 
 import com.example.pingservice.constant.Constant;
+import com.example.pingservice.dto.PingResDto;
 import com.example.pingservice.logger.MyLogger;
 import com.example.pingservice.service.IPingService;
 import com.example.pingservice.util.PingRateLimiter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.channels.FileLock;
 
 /**
  * PingServiceImpl
@@ -42,17 +43,23 @@ public class PingServiceImpl implements IPingService {
      * @return Ping Result
      */
     @Override
-    public Mono<ResponseEntity<String>> ping() {
-        //速率控制，每秒钟最多允许2个请求通过
-        if (!PingRateLimiter.checkRateLimit(lockFilePath)) {
-            MyLogger.error("Request not send as being 'rate limited'.");
-            return Mono.just(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Request not send as being 'rate limited'."));
-        }
+    public Mono<PingResDto> ping() {
+        //Rate control: at most 2 requests are allowed to pass per second.
+        FileLock fileLock = PingRateLimiter.checkRateLimit(lockFilePath);
         try {
+            if (null == fileLock) {
+                MyLogger.error("Request not send as being 'rate limited'.");
+                PingResDto pingRes = new PingResDto();
+                pingRes.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                pingRes.setErrorMsg("Request not send as being 'rate limited'.");
+                return Mono.just(pingRes);
+            }
             return doPing();
         } catch (Exception e) {
             MyLogger.error(e.getMessage());
             return Mono.empty(); // return a empty Mono
+        } finally {
+            PingRateLimiter.releaseFileLock(fileLock);
         }
     }
 
@@ -61,7 +68,8 @@ public class PingServiceImpl implements IPingService {
      *
      * @return Ping Result
      */
-    private Mono<ResponseEntity<String>> doPing() {
+    private Mono<PingResDto> doPing() {
+        MyLogger.info("Ping:Hello");
         return webClient.post()
                 .uri(pongServiceUrl)
                 .bodyValue(Constant.SAY_CONTENT)
@@ -77,17 +85,22 @@ public class PingServiceImpl implements IPingService {
      * @param response response
      * @return Mono<String>
      */
-    public Mono<ResponseEntity<String>> handleResponse(ClientResponse response) {
-        return response.bodyToMono(String.class)
+    public Mono<PingResDto> handleResponse(ClientResponse response) {
+        return response.bodyToMono(PingResDto.class)
                 .flatMap(body -> {
+                    PingResDto pingRes = new PingResDto();
+                    pingRes.setStatus(response.statusCode().value());
                     if (response.statusCode().is2xxSuccessful()) {
-                        MyLogger.info("Request sent:Hello & Pong Respond:" + body);
+                        MyLogger.info("Pong:" + body.getBody());
+                        pingRes.setBody(body.getBody());
                     } else if (response.statusCode() == HttpStatus.TOO_MANY_REQUESTS) {
-                        MyLogger.error("Request send & Pong throttled it.");
+                        MyLogger.error("Pong:" + response.statusCode());
+                        pingRes.setErrorMsg(body.getErrorMsg());
                     } else {
                         MyLogger.error("Received unexpected response: " + response.statusCode());
+                        pingRes.setErrorMsg(body.getErrorMsg());
                     }
-                    return Mono.just(ResponseEntity.status(response.statusCode()).body(body));
+                    return Mono.just(pingRes);
                 });
     }
 }
