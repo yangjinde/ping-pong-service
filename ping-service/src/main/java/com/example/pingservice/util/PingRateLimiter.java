@@ -71,6 +71,7 @@ public class PingRateLimiter {
             }
             // if in a second request count more than the limit, return false
             else if (requestCount >= Constant.MAX_REQ_NUM) {
+                releaseFileLock(fileLock);
                 return null;
             }
             // if in a second request count less than the limit, count + 1, return true

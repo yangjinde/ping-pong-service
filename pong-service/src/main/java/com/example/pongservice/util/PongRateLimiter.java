@@ -41,7 +41,7 @@ public class PongRateLimiter {
         try {
             RandomAccessFile raf = new RandomAccessFile(lockFilePath, "rw");
             FileChannel channel = raf.getChannel();
-            FileLock lock = channel.lock();
+            FileLock fileLock = channel.lock();
             // if not exist the count file, init
             PongRateLimiter.initializeFile(raf);
 
@@ -62,6 +62,7 @@ public class PongRateLimiter {
             }
             // if in a second request count more than the limit, return null
             else if (requestCount >= Constant.MAX_REQ_NUM) {
+                releaseFileLock(fileLock);
                 return null;
             }
             // if in a second request count less than the limit, count + 1, return FileLock
@@ -70,7 +71,7 @@ public class PongRateLimiter {
                 raf.writeLong(startTime);
                 raf.writeInt(requestCount + 1);
             }
-            return lock;
+            return fileLock;
 
         } catch (Exception e) {
             return null;

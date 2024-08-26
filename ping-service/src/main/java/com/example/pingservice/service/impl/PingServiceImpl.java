@@ -45,13 +45,14 @@ public class PingServiceImpl implements IPingService {
     @Override
     public Mono<PingResDto> ping() {
         //Rate control: at most 2 requests are allowed to pass per second.
-        FileLock fileLock = PingRateLimiter.checkRateLimit(lockFilePath);
+        FileLock fileLock = null;
         try {
+            fileLock = PingRateLimiter.checkRateLimit(lockFilePath);
             if (null == fileLock) {
-                MyLogger.error("Request not send as being 'rate limited'.");
+                MyLogger.error("Request not send as being “rate limited”");
                 PingResDto pingRes = new PingResDto();
                 pingRes.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-                pingRes.setErrorMsg("Request not send as being 'rate limited'.");
+                pingRes.setErrorMsg("Request not send as being “rate limited”");
                 return Mono.just(pingRes);
             }
             return doPing();
@@ -69,13 +70,12 @@ public class PingServiceImpl implements IPingService {
      * @return Ping Result
      */
     private Mono<PingResDto> doPing() {
-        MyLogger.info("Ping:Hello");
         return webClient.post()
                 .uri(pongServiceUrl)
                 .bodyValue(Constant.SAY_CONTENT)
                 .exchangeToMono(this::handleResponse)
                 .doOnError(IOException.class, e -> {
-                    MyLogger.info("Rate limited, request not sent");
+                    MyLogger.error("Received unexpected response: " + e.getMessage());
                 });
     }
 
@@ -90,14 +90,14 @@ public class PingServiceImpl implements IPingService {
                 .flatMap(body -> {
                     PingResDto pingRes = new PingResDto();
                     pingRes.setStatus(response.statusCode().value());
-                    if (response.statusCode().is2xxSuccessful()) {
-                        MyLogger.info("Pong:" + body.getBody());
+                    if (body.getStatus() == HttpStatus.OK.value()) {
+                        MyLogger.info("Request sent & Pong Respond.");
                         pingRes.setBody(body.getBody());
-                    } else if (response.statusCode() == HttpStatus.TOO_MANY_REQUESTS) {
-                        MyLogger.error("Pong:" + response.statusCode());
+                    } else if (body.getStatus() == HttpStatus.TOO_MANY_REQUESTS.value()) {
+                        MyLogger.error("Request send & Pong throttled it.");
                         pingRes.setErrorMsg(body.getErrorMsg());
                     } else {
-                        MyLogger.error("Received unexpected response: " + response.statusCode());
+                        MyLogger.error("Received unexpected response: " + body.getErrorMsg());
                         pingRes.setErrorMsg(body.getErrorMsg());
                     }
                     return Mono.just(pingRes);
