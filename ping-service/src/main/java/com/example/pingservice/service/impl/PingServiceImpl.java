@@ -47,6 +47,7 @@ public class PingServiceImpl implements IPingService {
         //Rate control: at most 2 requests are allowed to pass per second.
         FileLock fileLock = null;
         try {
+            MyLogger.info("=====>Ping: Hello");
             fileLock = PingRateLimiter.checkRateLimit(lockFilePath);
             if (null == fileLock) {
                 MyLogger.warn("Request not send as being “rate limited”");
@@ -91,12 +92,15 @@ public class PingServiceImpl implements IPingService {
                     PingResDto pingRes = new PingResDto();
                     pingRes.setStatus(response.statusCode().value());
                     if (body.getStatus() == HttpStatus.OK.value()) {
+                        MyLogger.info("=====>Pong: " + body.getBody());
                         MyLogger.info("Request sent & Pong Respond.");
                         pingRes.setBody(body.getBody());
                     } else if (body.getStatus() == HttpStatus.TOO_MANY_REQUESTS.value()) {
+                        MyLogger.info("=====>Pong: " + body.getStatus());
                         MyLogger.error("Request send & Pong throttled it.");
                         pingRes.setErrorMsg(body.getErrorMsg());
                     } else {
+                        MyLogger.info("=====>Pong: " + body.getStatus());
                         MyLogger.error("Received unexpected response: " + body.getErrorMsg());
                         pingRes.setErrorMsg(body.getErrorMsg());
                     }
