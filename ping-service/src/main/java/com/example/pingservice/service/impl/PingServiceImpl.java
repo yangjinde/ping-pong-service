@@ -49,7 +49,7 @@ public class PingServiceImpl implements IPingService {
         try {
             fileLock = PingRateLimiter.checkRateLimit(lockFilePath);
             if (null == fileLock) {
-                MyLogger.error("Request not send as being “rate limited”");
+                MyLogger.warn("Request not send as being “rate limited”");
                 PingResDto pingRes = new PingResDto();
                 pingRes.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 pingRes.setErrorMsg("Request not send as being “rate limited”");
