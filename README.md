@@ -10,7 +10,7 @@ mvn clean package
 
 #### 3 Run Pong Server
 ```
-java -jar ping-service-1.0.0-SNAPSHOT.jar --server.port=8080
+java -jar pong-service-1.0.0-SNAPSHOT.jar --server.port=8080
 ```
 
 #### 4 Run Ping Server
