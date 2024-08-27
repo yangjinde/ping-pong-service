@@ -68,6 +68,7 @@ public class PingRateLimiter {
                 raf.seek(0);
                 raf.writeLong(currentTime);
                 raf.writeInt(1);
+                return fileLock;
             }
             // if in a second request count more than the limit, return null
             else if (requestCount >= Constant.MAX_REQ_NUM) {
@@ -80,8 +81,8 @@ public class PingRateLimiter {
                 raf.writeLong(startTime);
                 //count + 1
                 raf.writeInt(requestCount + 1);
+                return fileLock;
             }
-            return fileLock;
         } catch (Exception e) {
             return null;
         }

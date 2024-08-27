@@ -58,7 +58,6 @@ public class PingServiceImpl implements IPingService {
                 pingRes.setErrorMsg("Request not send as being “rate limited”");
                 return Mono.just(pingRes);
             }
-
         } catch (Exception e) {
             MyLogger.error("Request error: " + e.getMessage());
             PingResDto pingRes = new PingResDto();
@@ -78,7 +77,7 @@ public class PingServiceImpl implements IPingService {
     private Mono<PingResDto> doPing() {
         return webClient.post()
                 .uri(pongServiceUrl)
-                .bodyValue(Constant.SAY_CONTENT)
+                .bodyValue(Constant.SAY_HELLO)
                 .exchangeToMono(this::handleResponse)
                 .doOnError(IOException.class, e -> {
                     MyLogger.error("Received unexpected response: " + e.getMessage());

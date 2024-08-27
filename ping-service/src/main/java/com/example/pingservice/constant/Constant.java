@@ -8,7 +8,7 @@ package com.example.pingservice.constant;
  */
 public class Constant {
 
-    public static final String SAY_CONTENT = "Hello";
+    public static final String SAY_HELLO = "Hello";
 
     /**
      * User Home Path
