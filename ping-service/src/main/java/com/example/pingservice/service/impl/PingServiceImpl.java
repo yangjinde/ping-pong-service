@@ -49,17 +49,22 @@ public class PingServiceImpl implements IPingService {
         try {
             MyLogger.info("=====>Ping: Hello");
             fileLock = PingRateLimiter.checkRateLimit(lockFilePath);
-            if (null == fileLock) {
+            if (null != fileLock) {
+                return doPing();
+            } else {
                 MyLogger.warn("Request not send as being “rate limited”");
                 PingResDto pingRes = new PingResDto();
                 pingRes.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 pingRes.setErrorMsg("Request not send as being “rate limited”");
                 return Mono.just(pingRes);
             }
-            return doPing();
+
         } catch (Exception e) {
-            MyLogger.error(e.getMessage());
-            return Mono.empty(); // return a empty Mono
+            MyLogger.error("Request error: " + e.getMessage());
+            PingResDto pingRes = new PingResDto();
+            pingRes.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            pingRes.setErrorMsg(e.getMessage());
+            return Mono.just(pingRes);
         } finally {
             PingRateLimiter.releaseFileLock(fileLock);
         }
